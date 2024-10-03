@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Transcription with Formatted Meeting Minutes</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>Audio Transcription with Formatted Meeting Minutes</h1>
+        <button @click="showSettings = true">Settings</button>
+        
+        <div class="container">
+            <div class="left-pane">
+                <h2>Options</h2>
+                <div>
+                    <label for="model-select">Select Model:</label>
+                    <select id="model-select" v-model="selectedModel">
+                        <option value="distil-whisper-large-v3-en">Distill Whisper (English only, Faster)</option>
+                        <option value="whisper-large-v3">Whisper Large (Multilingual)</option>
+                    </select>
+                </div>
+                <input type="file" @change="handleFileSelect" accept=".mp3,.mp4,.mpeg,.mpga,.m4a,.wav,.webm">
+                <button @click="transcribeAudio" :disabled="!selectedFile || isTranscribing">Transcribe</button>
+                <button @click="cancelTranscription" :disabled="!isTranscribing">Cancel</button>
+                <button @click="resetAll">Reset</button>
+                <div class="progress-bar" v-if="isTranscribing">
+                    <div class="progress" :style="{ width: progress + '%' }"></div>
+                </div>
+            </div>
+            <div class="right-pane">
+                <h2>Transcription</h2>
+                <div v-if="transcription">{{ transcription }}</div>
+                <div v-else>No transcription yet.</div>
+            </div>
+        </div>
+
+        <div v-if="showSettings" class="modal">
+            <div class="modal-content">
+                <h2>Settings</h2>
+                <label for="groqApiKey">Groq API Key:</label>
+                <input id="groqApiKey" v-model="settings.groqApiKey" type="text">
+                
+                <label>
+                    <input type="checkbox" v-model="settings.debugMode"> Enable Debug Mode
+                </label>
+                
+                <label>
+                    <input type="checkbox" v-model="settings.downsampleAudio"> Downsample Audio to 16kHz
+                </label>
+                
+                <button @click="saveSettings">Save</button>
+                <button @click="showSettings = false">Close</button>
+            </div>
+        </div>
+
+        <div v-if="settings.debugMode" class="debug-window">
+            <h3>Debug Logs</h3>
+            <ul>
+                <li v-for="log in debugLogs" :key="log">{{ log }}</li>
+            </ul>
+        </div>
+    </div>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
